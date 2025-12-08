@@ -3,16 +3,65 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Website</title>
+    <title>CS 566 Midterm Report</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-    <header>
-        <h1>Welcome to My Website</h1>
-        <p>This is a simple starter site.</p>
-        <button id="helloBtn">Click Me</button>
-    </header>
+    <div class="container">
+        <h1 class="title">CS 566 Final Project Website</h1>
+
+        <p><strong>Project Title:</strong> Traffic Congestion Trends by Bidirectional Flow Analysis</p>
+        <p><strong>Team Members:</strong> Ayush Sharma, Nico Grafe, Zhaoyang Liu</p>
+
+        <h2>Current Progress:</h2>
+        <p>
+            The three of us worked on a few different methods to extract data from traffic camera videos. 
+            We each used YOLO but collected different data on the same video. Our different approaches each 
+            have their own strengths and drawbacks. We plan to combine the models next and incorporate the 
+            best parts of each. Then we can start working on visualizing the data and perform trend analysis on it.
+        </p>
+
+        <h2>Attempted Methods:</h2>
+
+        <h3>Method 1:</h3>
+        <p>
+            Inspired by what we have learned on edge detection and boundary detection in CS566, we started 
+            off by using built-in functions in cv2 (OpenCV Python module) such as <code>findContours</code> 
+            to build our vehicle detection system. We first use a function called <code>VideoCapture</code> 
+            to break the video into frames so that later we can process them one by one and then reconstruct 
+            the original video with the annotations.
+        </p>
+
+        <p>
+            We segment the video into its moving foreground objects and static background to only leave 
+            the objects that we are interested in (i.e., vehicles). After that, we perform a series of 
+            operations to refine our mask to remove noise from the frames and isolate individual objects 
+            from each other through erosion and dilation. After that, we perform <code>findContours</code> 
+            to find the contour of each detected object.
+        </p>
+
+        <p>
+            To filter out errors while finding contours, we assume each valid contour should have a 
+            relatively large area (current threshold: 550). For each valid contour, we draw a rectangle 
+            around each detected vehicle.
+        </p>
+
+        <p>
+            The screenshots below show the results. As we observed, even after refining our mask and 
+            applying thresholds, some extra boundary boxes appear or two close vehicles are merged. 
+            More aggressive filtering removes these issues but also suppresses smaller vehicles, causing 
+            data inaccuracies. This is a drawback of traditional CV methods based on static algorithms, 
+            especially in scenes involving 3D objects.
+        </p>
+
+        <p>
+            Because of these limitations, we moved toward modern approaches with YOLO, which has gained 
+            traction for object detection due to its anchor-based deep learning architecture and strong 
+            performance. Our next steps involve combining YOLO’s strengths with our filtering approach to 
+            further refine detection accuracy.
+        </p>
+    </div>
 
     <script src="script.js"></script>
 </body>
