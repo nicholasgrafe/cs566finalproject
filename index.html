@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CS 566 Midterm Report</title>
+    <!-- <title>CS 566 Midterm Report</title> -->
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
     <div class="container">
-        <h1 class="title">CS 566 Final Project Website</h1>
-
-        <p><strong>Project Title:</strong> Traffic Congestion Trends by Bidirectional Flow Analysis</p>
-        <p><strong>Team Members:</strong> Ayush Sharma, Nico Grafe, Zhaoyang Liu</p>
+        <h1 class="title" style="color: #0A3B5D; font-size: 34px;">Traffic Congestion Trends by Bidirectional Flow Analysis</h1>
+        <p style="text-align: center; color: rgb(0, 91, 187); font-size: 20px;">
+            Ayush Sharma, Nico Grafe, Zhaoyang Liu<br/>
+            CS 566
+        </p>
 
         <h2>Current Progress:</h2>
         <p>
@@ -21,48 +22,131 @@
             have their own strengths and drawbacks. We plan to combine the models next and incorporate the 
             best parts of each. Then we can start working on visualizing the data and perform trend analysis on it.
         </p>
+        
+        <h2 style="color: rgb(36, 158, 220);">Motivation</h2>
 
-        <h2>Attempted Methods:</h2>
+        <h2 style="color: rgb(36, 158, 220);">Our Approach</h2>
 
-        <h3>Method 1:</h3>
+        <h3>1️⃣ Building A Vehicle Tracking System</h3>
+        <h4>Traditional Method</h4>
         <p>
-            Inspired by what we have learned on edge detection and boundary detection in CS566, we started 
-            off by using built-in functions in cv2 (OpenCV Python module) such as <code>findContours</code> 
-            to build our vehicle detection system. We first use a function called <code>VideoCapture</code> 
-            to break the video into frames so that later we can process them one by one and then reconstruct 
-            the original video with the annotations.
+            Our initial approach for developing a vehicle tracking model is to apply what we have learned in CS566, 
+            including a technique called <em>background subtraction</em> to only detect changes, Gaussian blur, thresholding, 
+            and boundary detection. We use certain built-in functions in <code>cv2</code> (OpenCV Python module) and 
+            <code>Numpy</code> to build this vehicle detection system prototype.
         </p>
 
         <p>
-            We segment the video into its moving foreground objects and static background to only leave 
-            the objects that we are interested in (i.e., vehicles). After that, we perform a series of 
-            operations to refine our mask to remove noise from the frames and isolate individual objects 
-            from each other through erosion and dilation. After that, we perform <code>findContours</code> 
-            to find the contour of each detected object.
+            We first use a function called <code>cv2.VideoCapture()</code> to break the video into frames, then apply Gaussian blur to denoise 
+            the current frame. We have observed a performance improvement when using Gaussian blur, especially when multiple 
+            vehicles appear to overlap in the frame. Then we segment the frame into its moving foreground objects and static 
+            background, to only leave with the objects that we are interested in (i.e., vehicles). <em>Background subtraction</em> 
+            is a valid technique in this case because the camera is static and the only moving objects in the frame are 
+            those vehicles. To do that, we use the <em>Gaussian Mixture Model</em> to classify each pixel as either foreground or 
+            background. After that, we perform a series of operations to refine a mask to remove noise from the frames and 
+            isolate individual objects from each other through some morphological operations like erosion and dilation. 
+            Based on the foreground mask, we perform <code>cv2.findContours()</code> to find the contour of each detected vehicle. To 
+            filter out errors caused by noise while finding valid contours, we assume each valid contour should have a 
+            relatively large area (right now the threshold is >450). Then, for each valid contour, we use a function 
+            <code>cv2.rectangle()</code> to draw a bounding box around each detected vehicle.
+        </p>
+        <div>
+            <img src="assets/m1_res1.png" width="500" height="281" style="display: block; margin-left: auto; margin-right: auto;"/>
+        </div>
+        <p>
+            The stack of images above show some intermediate results as well as the final output when processing one frame. The picture 
+            on the upper-left corner is the original frame, the picture on the upper-right corner is the initial binary foreground 
+            mask, the picture on the lower-left corner is the foreground after a series of computations and filtering, the picture 
+            on the lower-right corner is the final output. As we observed, even if we try to refine our mask and apply certain 
+            thresholds, we can still see some extra bounding boxes show up in the result (especially for a truck where the rearview 
+            mirror was mistakenly identified as a vehicle) or can't distinguish between two vehicles that are close to each other 
+            but visually distinguishable. We believe that that is a drawback of using conventional Computer Vision methods which 
+            are static and may not perform well when the scene involves 3d objects (for instance, SIFT performs badly on 3d objects). 
+            Thus, we try to look at some modern approaches for object detection and find out <em>YOLO</em>, which is an anchor-based deep 
+            learning detection method, has gained lots of attention, to further explore and address the issues we have so far.
+        </p>
+
+        <h4>Deep Leearning Based Method</h4>
+
+        <h3>2️⃣ Perspective Transformation</h3>
+
+        <p>
+            Building on an acceptable vehicle detection model, the next step is to figure out the speed of each vehicle in 
+            the video. One challenge is the displacement of one vehicle in the video calculated from a series of frames does 
+            not necessarily directly map to the displacement of that vehicle in reality. As we have observed, the camera is 
+            at a certain angle to the actual road surface so that the coordinate system of a frame is not necessarily a scaled 
+            version of the coordinate system of the real world. To overcome this problem, we perform a <em>perspective transformation</em> 
+            to map the coordinates on the frame to the coordinates in the reality.
+        </p>
+
+        <div>
+            <img src="assets/pt.png" width="500" height="409.34" style="display: block; margin-left: auto; margin-right: auto;"/>
+        </div>
+        <p>
+            The main idea is depicted in the graph shown above. We first draw a ​​polygon on the video frame to indicate the region where 
+            vehicles will show up in the video and record the corresponding coordinates, as indicated by A, B, C, and D. The coordinates 
+            of those four points are w.r.t. the  frame's coordinate system. For simplicity, we create a quadrilateral. Then we set up a 
+            region corresponding to the roads in reality from a bird eye view so that the width and height of the region are directly 
+            correlated with the actual width and height of the roads. We construct it based on the average dimensions of highway lanes, 
+            as well as counting the number of dashed lines on the surface, and get points A', B', C', and D' for the four corners, 
+            respectively. In order to map one coordinate system w.r.t. another coordinate system, we use <code>cv2.getPerspectiveTransform()</code> to 
+            create a transformer between the two coordinate systems. Later, when we want to figure out the coordinates of a point on the 
+            frame, we would insert it into <code>cv2.perspectiveTransform()</code> along with the computed transformer to get the corresponding 
+            coordinates in reality. By doing so, we are able to get the (approximate) coordinates of any point in the frame in real life.
         </p>
 
         <p>
-            To filter out errors while finding contours, we assume each valid contour should have a 
-            relatively large area (current threshold: 550). For each valid contour, we draw a rectangle 
-            around each detected vehicle.
+            However, as we can see from the screenshot, the highway consists of a horizontal section followed by an inclined section so that only 
+            locating four points won't be enough to recognize the existence of the hill. The more points we use, the more robust the transformation will 
+            be. Thus, we are inspired by a technique called <em>homography</em> that we learned for stitching multiple images to build a panorama, and calculate a 
+            homography matrix which will then be used to perform perspective transformation. The picture below shows the points that we choose (in yellow). On both 
+            sides of the road, we add one more point to try to capture the transition between the straight road and the hill. We performed manual tuning, 
+            but since we don't know the true dimensions of the road nor the exact location of the reference points on the actual road, the transformation 
+            won't be perfect. Our focus is to explore and find a method for analyzing traffic congestion trends, so once we know the real dimension of a road, 
+            this system will be able to work as expected.
+        </p>
+        <div>
+            <img src="assets/coor.png" width="500" height="279.276" style="display: block; margin-left: auto; margin-right: auto;"/>
+        </div>
+        <p>
+            Once we have a proper coordinate transformation defined, we are able to estimate the speed of a vehicle at any given point in time. 
+            The way we calculate the displacement of a vehicle within a time interval is shown in the figure below. We let the coordinates of a 
+            vehicle be the bottom-center of the bounding box around it. For two non-contiguous frames, we compute the Euclidean distance between 
+            the two coordinates, and then divide it by the time that overlaps between those two frames to arrive at the speed of the vehicle.
+        </p>
+        <div>
+            <img src="assets/distance.png" width="600" height="309.388" style="display: block; margin-left: auto; margin-right: auto;"/>
+        </div>
+        <p>
+            A bar chart showing the average speed of vehicles in each direction for every 20 seconds is presented here.
+        </p>
+        <div>
+            <img src="assets/bar1.png" width="500" height="363.786" style="display: block; margin-left: auto; margin-right: auto;"/>
+        </div>
+        <p> 
+            As we can see, for every 20 seconds in one direction, the average speed is relatively the same with some acceptable variation due to the estimation 
+            of road dimensions, the shape of the roads, etc., and vehicles going in the downhill direction generally have a higher speed than 
+            vehicles going in the opposite direction. Those observations align with the fact that on average, the speed limit of any British 
+            highway is 112km/h (this video clip is from a British highway). One thing that we noticed is the average speed of vehicles in the 
+            downhill direction has a big drop in the last 20 seconds. This is because there is a big truck which moves at a much lower speed 
+            compared to others. Also, the first two 20-seconds periods have a lower average speed compared to the last 20-seconds period in the 
+            uphill direction. This is because during that period, a sudden influx of vehicles traveling in that direction caused slight congestion 
+            on the road. This phenomenon further proves that our system can respond to traffic conditions through real-time speed monitoring, 
+            thereby helping relevant departments to quickly respond to possible circumstances on the road.
         </p>
 
         <p>
-            The screenshots below show the results. As we observed, even after refining our mask and 
-            applying thresholds, some extra boundary boxes appear or two close vehicles are merged. 
-            More aggressive filtering removes these issues but also suppresses smaller vehicles, causing 
-            data inaccuracies. This is a drawback of traditional CV methods based on static algorithms, 
-            especially in scenes involving 3D objects.
-        </p>
+            Given the methods we developed and a case-based feasibility study, we apply this system to a longer video clip to further observe how well it performs.
+        </p>  
 
-        <p>
-            Because of these limitations, we moved toward modern approaches with YOLO, which has gained 
-            traction for object detection due to its anchor-based deep learning architecture and strong 
-            performance. Our next steps involve combining YOLO’s strengths with our filtering approach to 
-            further refine detection accuracy.
-        </p>
+        <h2 style="color: rgb(36, 158, 220);">Experiments And Results</h3>
+
+        <h2 style="color: rgb(36, 158, 220);">What We Learned</h3>
+
+        <br/><br/><br/>
+        <a href="https://drive.google.com/file/d/1uJtmUkwYj-Pp8PS10ZBuSwt9v2V1Fdsd/view?usp=sharing" target="_blank" class="button">Link To Presentation</a>
     </div>
 
-    <script src="script.js"></script>
+    <!-- <script src="script.js"></script> -->
 </body>
 </html>

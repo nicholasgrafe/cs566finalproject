@@ -1,14 +1,25 @@
+@font-face {
+  font-family: 'Varela Round';
+  font-style: normal;
+  font-weight: 400;
+  src: url("https://fonts.gstatic.com/s/varelaround/v21/w8gdH283Tvk__Lua32TysjIfp8uPLdshZg.woff2") format('woff2');
+}
+
 body {
     margin: 0;
-    font-family: Georgia, serif;
-    background: #f8f8f8;
+    font-family: Varela Round, Georgia, serif;
+    /*background: #f8f8f8;*/
+    background-image: url('assets/road.png');
+    background-attachment: fixed;
+    background-position: center center;
+    background-size: cover;
     color: #222;
     line-height: 1.6;
 }
 
 .container {
     width: 80%;
-    max-width: 900px;
+    max-width: 1000px;
     margin: 50px auto;
     background: white;
     padding: 40px;
@@ -18,12 +29,12 @@ body {
 
 .title {
     text-align: center;
-    margin-top: 0;
+    /* margin-top: 0;
     margin-bottom: 40px;
-    font-size: 28px;
+    font-size: 28px; */
 }
 
-h2 {
+/* h2 {
     margin-top: 32px;
     margin-bottom: 10px;
     font-size: 22px;
@@ -33,11 +44,29 @@ h3 {
     margin-top: 20px;
     margin-bottom: 6px;
     font-size: 18px;
-}
+} */
 
 code {
     background: #eee;
     padding: 2px 5px;
     border-radius: 4px;
-    font-size: 0.9em;
+    /* font-size: 0.9em; */
+}
+
+a.button {
+    padding: 11.25px 11.25px;
+    text-decoration: none;
+    border-radius: 12px;
+    color: white;
+    background-color: rgb(36, 158, 220);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 1.5px 4px 0px, rgba(0, 0, 0, 0.12) 0px 1.5px 6px 0px;
+}
+
+a.button:hover{
+    color: rgb(36, 158, 220);
+    border-width: 2px 2px;
+    border-style: solid solid;
+    border-color: rgb(36, 158, 220) rgb(36, 158, 220);
+    padding: 9.25px 9.25px;
+    background-color: white;
 }
