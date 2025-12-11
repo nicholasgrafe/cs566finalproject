@@ -12,22 +12,47 @@
         <h1 class="title" style="color: #0A3B5D; font-size: 34px;">Traffic Congestion Trends by Bidirectional Flow Analysis</h1>
         <p style="text-align: center; color: rgb(0, 91, 187); font-size: 20px;">
             Ayush Sharma, Nico Grafe, Zhaoyang Liu<br/>
-            CS 566
+            CS 566 Final Project Website
+        </p>
+        <h2>Our Report:</h2>
+        <p>
+            The three of us explored different methods for extracting data from traffic camera videos. 
+            We each used the YOLO object detection algorithm to analyze traffic on simple bidirectional roadways, 
+            which removed the complications of intersections and turning movements. This allowed us to focus on 
+            comparing our individual approaches and combining the strongest parts of each into a single pipeline 
+            for tracking vehicles, determining direction, and measuring traffic flow. 
         </p>
 
-        <h2>Current Progress:</h2>
         <p>
-            The three of us worked on a few different methods to extract data from traffic camera videos. 
-            We each used YOLO but collected different data on the same video. Our different approaches each 
-            have their own strengths and drawbacks. We plan to combine the models next and incorporate the 
-            best parts of each. Then we can start working on visualizing the data and perform trend analysis on it.
+            A video presentation of our report is linked at the bottom of this website.
         </p>
         
         <h2 style="color: rgb(36, 158, 220);">Motivation</h2>
+        <p>
+            Americans lose about <strong>63 hours due to delays alone annually</strong>, which results in lower 
+            worker productivity, higher fuel consumption costs, and slower response times for public services 
+            like fire and police. Because of this, it makes sense to explore tools that can give cities a clearer 
+            and faster understanding of what is happening on the road.
+        </p>
+
+        <p>
+            Vision based systems are a promising option because they use live camera footage to observe real 
+            time conditions. Unlike tools that depend on crowdsourced data or historical patterns, such as 
+            Google Maps which typically refreshes its traffic information every few minutes, a camera can show 
+            slowdowns, lane blockages, or accidents the moment they occur. With accurate and immediate 
+            information about how vehicles are moving, it becomes easier to identify bottlenecks and respond 
+            quickly.
+        </p>
+
+        <p>
+            Our project demonstrates a small scale example of how video alone can be used to analyze 
+            traffic. By combining classical computer vision techniques with modern deep learning, we 
+            aimed to track vehicles, estimate their speeds, and identify trends related to congestion.
+        </p>
 
         <h2 style="color: rgb(36, 158, 220);">Our Approach</h2>
 
-        <h3>1️⃣ Building A Vehicle Tracking System</h3>
+        <h3>1. Building A Vehicle Tracking System</h3>
         <h4>Traditional Method</h4>
         <p>
             Our initial approach for developing a vehicle tracking model is to apply what we have learned in CS566, 
@@ -66,7 +91,7 @@
             learning detection method, has gained lots of attention, to further explore and address the issues we have so far.
         </p>
 
-        <h4>Deep Leearning Based Method</h4>
+        <h4>Deep Learning Based Method</h4>
         <p>
         To address the limitations of the traditional background subtraction methodwe implemented a robust Deep Learning pipeline using 
         <strong>YOLOv8</strong> (You Only Look Once) combined with <strong>ByteTrack</strong>. unlike the static background subtraction
@@ -97,7 +122,7 @@
         <strong>Automated Visualization:</strong> The pipeline includes a <code>MetricsCollector</code> class that aggregates these data points and automatically generates a dashboard of visualizations, including speed distribution histograms, lane-usage heatmaps, and temporal scatter plots of crossing events.
         </p>
 
-        <h3>2️⃣ Perspective Transformation</h3>
+        <h3>2. Perspective Transformation</h3>
 
         <p>
             Building on an acceptable vehicle detection model, the next step is to figure out the speed of each vehicle in 
@@ -222,7 +247,32 @@
             <li><strong>Resource Allocation:</strong> Statistical trends help predict when the evacuation surge will taper off, allowing police to redeploy traffic control officers to other critical sectors.</li>
         </ul>
 
-        <h2 style="color: rgb(36, 158, 220);">What We Learned</h3>
+        <h2 style="color: rgb(36, 158, 220);">What We Learned</h2>
+
+        <p>
+            Throughout this project we gained experience with both traditional and modern computer vision 
+            techniques. We started with methods from class such as Gaussian blurring and Mixture of 
+            Gaussians to create a basic motion segmentation pipeline and understand how classical computer vision 
+            detects movement in a scene.
+        </p>
+
+        <p>
+            As we worked with more difficult videos, we began seeing where these traditional methods fell 
+            short, especially with overlapping vehicles, shadows, and changing lighting. This led us to 
+            explore deep learning based detection, and we learned how to apply YOLO in practice, including 
+            choosing confidence thresholds, filtering detections, and connecting it with a tracker to follow 
+            vehicles across frames. Seeing the difference in stability and accuracy helped us understand why 
+            learned features outperform hand-crafted ones in busy traffic scenes.
+        </p>
+
+        <p>
+            By combining tracking with perspective transformation, we learned how to measure direction and 
+            estimate speed, and how sensitive these measurements are to road geometry. Analyzing the collected 
+            data also helped us see how flow rate, density, and dwell time relate to congestion. Overall, the 
+            project showed us how classical techniques and deep learning can complement each other and how 
+            they fit together in a complete traffic analysis pipeline.
+        </p>
+
 
         <br/><br/><br/>
         <a href="https://drive.google.com/file/d/1uJtmUkwYj-Pp8PS10ZBuSwt9v2V1Fdsd/view?usp=sharing" target="_blank" class="button">Link To Presentation</a>
