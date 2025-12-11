@@ -72,7 +72,11 @@
         <strong>YOLOv8</strong> (You Only Look Once) combined with <strong>ByteTrack</strong>. unlike the static background subtraction
         which relies on pixel differences, YOLOv8 detects vehicles as distinct objects (Car, Truck, Bus, Motorbike) with high confidence, 
         even in crowded frames.
+
         </p>
+        <div>
+            <img src="assets/deep_learning_example.png" width="500" height="281" style="display: block; margin-left: auto; margin-right: auto;"/>
+        </div>
 
         <p>
         <strong>Tracking & ID Persistence:</strong> We utilized the ByteTrack algorithm to associate detections across frames. This assigns a unique ID to each vehicle, allowing us to maintain identity even when vehicles temporarily overlap. By maintaining a history buffer of the last 8 centroids (using a <code>deque</code>), we calculate a motion vector for each vehicle. This allows us to mathematically determine direction (Left, Right, Up, Down) based on the dominant axis of displacement, rather than relying solely on lane position.
