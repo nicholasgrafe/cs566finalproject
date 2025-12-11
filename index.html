@@ -67,6 +67,31 @@
         </p>
 
         <h4>Deep Leearning Based Method</h4>
+        <p>
+        To address the limitations of the traditional background subtraction methodwe implemented a robust Deep Learning pipeline using 
+        <strong>YOLOv8</strong> (You Only Look Once) combined with <strong>ByteTrack</strong>. unlike the static background subtraction
+        which relies on pixel differences, YOLOv8 detects vehicles as distinct objects (Car, Truck, Bus, Motorbike) with high confidence, 
+        even in crowded frames.
+        </p>
+
+        <p>
+        <strong>Tracking & ID Persistence:</strong> We utilized the ByteTrack algorithm to associate detections across frames. This assigns a unique ID to each vehicle, allowing us to maintain identity even when vehicles temporarily overlap. By maintaining a history buffer of the last 8 centroids (using a <code>deque</code>), we calculate a motion vector for each vehicle. This allows us to mathematically determine direction (Left, Right, Up, Down) based on the dominant axis of displacement, rather than relying solely on lane position.
+        </p>
+
+        <p>
+        <strong>Bidirectional Counting & Metrics:</strong>
+        Instead of simple presence detection, we implemented a virtual counting line (configurable as vertical or horizontal). A "crossing event" is recorded only when a tracked vehicle's centroid physically transitions from one side of the line to the other. This prevents double-counting stationary vehicles. This approach enabled us to extract advanced traffic engineering metrics:
+        </p>
+        <ul>
+            <li><strong>Flow Rate:</strong> A rolling window calculation of vehicles per minute to measure real-time throughput.</li>
+            <li><strong>Traffic Density:</strong> Calculated as the number of active vehicles per million pixels, providing a measure of road saturation.</li>
+            <li><strong>Dwell Time:</strong> By logging entry and exit timestamps for every unique ID, we measure exactly how long vehicles remain in the frame, which serves as a proxy for congestion levels.</li>
+            <li><strong>Peak Period Detection:</strong> The system bins crossing timestamps to automatically identify time intervals where traffic flow exceeds 80% of the maximum observed volume.</li>
+        </ul>
+
+        <p>
+        <strong>Automated Visualization:</strong> The pipeline includes a <code>MetricsCollector</code> class that aggregates these data points and automatically generates a dashboard of visualizations, including speed distribution histograms, lane-usage heatmaps, and temporal scatter plots of crossing events.
+        </p>
 
         <h3>2️⃣ Perspective Transformation</h3>
 
@@ -139,7 +164,59 @@
             Given the methods we developed and a case-based feasibility study, we apply this system to a longer video clip to further observe how well it performs.
         </p>  
 
-        <h2 style="color: rgb(36, 158, 220);">Experiments And Results</h3>
+        <h2 style="color: rgb(36, 158, 220);">Experiments And Results</h2>
+
+        <p>
+        To demonstrate the system's utility in crisis management, we applied our Deep Learning pipeline to footage of a
+         <strong>wildfire evacuation</strong>. In this scenario, the primary goal is not just counting cars, but understanding the 
+         the traffic and providing insights to first responders to help them find the fastest route. By analyzing traffic patterns during a 
+         natural disaster, we can derive actionable intelligence for first responders.
+        </p>
+
+        <h3>1. Monitoring Evacuation Throughput (Flow Rate)</h3>
+        <p>
+        During an evacuation, knowing the road's capacity versus current demand is vital. We used the <em>Flow Rate</em> metric (vehicles per minute) to measure the pulse of the evacuation.
+        </p>
+        <div>
+            <img src="assets/flow_rate.png" width="600" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;"/>
+            <p style="text-align: center; font-size: 14px; color: #555;">Figure 4: Real-time evacuation throughput. Sustained high values indicate road saturation.</p>
+        </div>
+        <p>
+        The graph reveals a sustained "saturation phase" where the flow rate remains near the road's theoretical maximum. <strong>For emergency response</strong>, this metric is critical: if the flow rate suddenly drops to zero while density remains high, it indicates a downstream blockage (e.g., an accident or debris) trapping evacuees. Real-time alerts based on this data would allow police to immediately redirect traffic or deploy clearance crews.
+        </p>
+
+        <h3>2. Assessing Route Viability for First Responders</h3>
+        <p>
+        Speed distribution is a key indicator of gridlock risk. Emergency vehicles (fire trucks, ambulances) need to know if a route is passable or if it has turned into a parking lot.
+        </p>
+        <div>
+            <img src="assets/speed_distribution.png" width="600" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;"/>
+            <p style="text-align: center; font-size: 14px; color: #555;">Figure 5: Velocity distribution during evacuation. The left-skew indicates "crawl" conditions.</p>
+        </div>
+        <p>
+        Our analysis shows a tight clustering of speeds at the lower end of the spectrum (significantly below the speed limit). This "crawl" behavior suggests that while traffic is moving, it is highly vulnerable to total gridlock. This data allows dispatchers to make informed decisions—for example, deciding <strong>not</strong> to send heavy fire apparatus down this specific corridor because the "Time to Arrival" would be too high due to congestion.
+        </p>
+
+        <h3>3. Lane Utilization & Contra-Flow Potential</h3>
+        <p>
+        A common tactic in hurricane or wildfire evacuations is "Contra-Flow," where inbound lanes are reversed to allow more outbound traffic. Our spatial heatmap provides the data needed to authorize such a maneuver.
+        </p>
+        <div>
+            <img src="assets/lane_counts.png" width="600" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;"/>
+            <p style="text-align: center; font-size: 14px; color: #555;">Figure 6: Lane usage intensity. Heavy usage on one side vs. empty space on the other.</p>
+        </div>
+        <p>
+        The heatmap highlights the disparity in lane usage. If the system detects that the outbound lanes are at 100% capacity (red/hot zones) while the inbound lanes are empty (blue/cold zones), it provides the quantitative justification for Incident Commanders to initiate contra-flow measures, effectively doubling the evacuation capacity and potentially saving lives.
+        </p>
+
+        <h3>Summary: Impact on Emergency Operations</h3>
+        <p>
+        This experiment confirms that our bidirectional flow analysis system can serve as a "Force Multiplier" for emergency services:
+        </p>
+        <ul>
+            <li><strong>Bottleneck Identification:</strong> By correlating high <em>Dwell Time</em> with low <em>Flow Rate</em>, we can automatically flag sections of road where people are trapped.</li>
+            <li><strong>Resource Allocation:</strong> Statistical trends help predict when the evacuation surge will taper off, allowing police to redeploy traffic control officers to other critical sectors.</li>
+        </ul>
 
         <h2 style="color: rgb(36, 158, 220);">What We Learned</h3>
 
